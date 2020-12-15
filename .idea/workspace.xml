@@ -2,31 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d0a52d6c-66e6-435e-b1ab-8fe3f55c7ea8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitingore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shippy.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-cli/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-cli/cli" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-cli/cli.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-cli/consignment.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-cli/go.mod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-cli/go.sum" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/go.mod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/go.sum" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/main.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/proto/consignment/consignment.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/proto/consignment/consignment.pb.micro.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/consignment-service/proto/consignment/consignment.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/go.mod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/go.sum" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/main.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/proto/vessel/vessel.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/proto/vessel/vessel.pb.micro.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vessel-service/proto/vessel/vessel.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/consignment-service/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vessel-service/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitingore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/consignment-cli/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/consignment-cli/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/consignment-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/consignment-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vessel-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/vessel-service/Dockerfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +25,12 @@
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../Devevn/Go" />
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--follow-tags" />
+        <option name="title" value="Current Branch" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1lb77OBhQF9tk11ve5KeMFZ87Iw" />
@@ -75,6 +64,11 @@
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
+        <entry key="1">
+          <value>
+            <State />
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State />
