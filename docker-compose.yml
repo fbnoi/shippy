@@ -1,0 +1,26 @@
+version: "3.5"
+
+services:
+
+    consignment-cli:
+        build: ./consignment-cli
+        image: shippy/cli:1.0
+
+    consignment:
+        restart: always
+        build: ./consignment-service
+        image: shippy/consignment-service:1.0
+
+        ports:
+            - 50051:50051
+        environment:
+            MICRO_SERVER_ADDRESS: ":50051"
+        depends_on:
+            - vessel
+
+    vessel:
+        restart: always
+        build: ./vessel-service
+        image: shippy/vessel-service:1.0
+        ports:
+            - 50052:50051
