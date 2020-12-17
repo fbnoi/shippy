@@ -2,47 +2,27 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	pb "github.com/fbnoi/shippy/vessel-service/proto/vessel"
 	"github.com/micro/go-micro/v2"
 	"log"
+	"os"
 )
 
-type iRepository interface {
-	findAvailableReserve(*pb.Specification) (*pb.Vessel, error)
-}
-
-type vesselRepository struct{
-	vessels []*pb.Vessel
-}
-
-func (r *vesselRepository) findAvailableReserve (spec *pb.Specification) (*pb.Vessel, error) {
-	for _, vessel := range r.vessels {
-		// 这里可能会出现脏读
-		// 比如说有新的订单进入并选择了此轮船，可能导致此是这个轮船此时的状态并不能满足工作需要
-		// 为了保证在读取轮船信息时，没有其他进程修改了此轮船的信息，要对此行数据添加读写锁
-		if vessel.Available == true &&
-			vessel.GetCapacity() >= spec.GetCapacity() &&
-			vessel.GetMaxWeight() >= spec.GetMaxWeight() {
-			vessel.Capacity -= spec.GetCapacity()
-			vessel.MaxWeight -= spec.GetMaxWeight()
-			if vessel.Capacity <= 10 || vessel.MaxWeight <= 500 {
-				vessel.Available = false
-			}
-			//更新船的目前最大容量
-			return vessel, nil
-		}
-	}
-	return nil, errors.New(fmt.Sprintf("no vessel found for the spec: %v, vessels: %v", spec, r.vessels))
-}
-
 type vesselService struct{
-	repo *vesselRepository
+	repo *VesselRepository
+}
+
+type config struct {
+	host 		string
+	port 		string
+	database 	string
+	charset 	string
+	username 	string
+	password 	string
 }
 
 func (s *vesselService) FindAvailableAndReserve(ctx context.Context, spec *pb.Specification, res *pb.Response) error {
-	vessel, err := s.repo.findAvailableReserve(spec)
+	vessel, err := s.repo.FindAvailable(spec)
 	if err != nil {
 		return err
 	}
@@ -50,18 +30,51 @@ func (s *vesselService) FindAvailableAndReserve(ctx context.Context, spec *pb.Sp
 	return nil
 }
 
-func (s *vesselService) Init() {
-	vessels := []*pb.Vessel{
-		&pb.Vessel{Id: "vessel001", Name: "Boaty McBoatface", MaxWeight: 200000, Capacity: 500, Available: true},
+func (s *vesselService) Create(ctx context.Context, req *pb.Vessel, res *pb.Response) error {
+	if vessel, err := s.repo.Create(req); err != nil {
+		return err
+	} else {
+		res.Created = true
+		res.Vessel = vessel
+		return nil
 	}
-	s.repo = &vesselRepository{vessels}
+}
+
+func (s *vesselService) Init(conf config) {
+	if session, err := CreateSession(conf.host, conf.port, conf.database, conf.charset, conf.username, conf.password); err != nil {
+		log.Fatalln(err)
+		panic(err)
+	} else {
+		s.repo = &VesselRepository{session}
+		vessels := []*pb.Vessel{
+			&pb.Vessel{Name: "Boaty McBoatface", MaxWeight: 13080, Capacity: 378, Available: true},
+			&pb.Vessel{Name: "Marry May", MaxWeight: 23080, Capacity: 480, Available: true},
+			&pb.Vessel{Name: "Chaclate", MaxWeight: 7800, Capacity: 180, Available: true},
+		}
+		for _, vessel := range vessels {
+			if _, err := s.repo.Create(vessel); err != nil {
+				log.Fatalln(err)
+				panic(err)
+			}
+		}
+	}
 }
 
 func main() {
+
+	conf := config{}
+
+	if os.Getenv("host") 		== "" {conf.host 		= "192.168.0.194"} 	else {conf.host 	= os.Getenv("host")}
+	if os.Getenv("port") 		== "" {conf.port 		= "3306"} 			else {conf.port 	= os.Getenv("port")}
+	if os.Getenv("database") 	== "" {conf.database 	= "vessels"} 		else {conf.database = os.Getenv("database")}
+	if os.Getenv("charset")	== "" {conf.charset 	= "utf8mb4"} 		else {conf.charset 	= os.Getenv("charset")}
+	if os.Getenv("username") 	== "" {conf.username 	= "linac"} 			else {conf.username = os.Getenv("username")}
+	if os.Getenv("password") 	== "" {conf.password 	= "whut123"} 		else {conf.password = os.Getenv("password")}
+
 	service := micro.NewService(micro.Name("shippy.service.vessel"))
 	service.Init()
 	vesselServ := &vesselService{}
-	vesselServ.Init()
+	vesselServ.Init(conf)
 
 	if err := pb.RegisterVesselServiceHandler(service.Server(), vesselServ); err != nil {
 		log.Panic(err)

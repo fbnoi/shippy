@@ -69,10 +69,10 @@ func (s *consignmentService) GetConsignments(ctx context.Context, req *pb.GetReq
 func main() {
 	conf := config{}
 
-	if os.Getenv("host") 		== "" {conf.host 		= "192.168.10.194"} else {conf.host 	= os.Getenv("host")}
+	if os.Getenv("host") 		== "" {conf.host 		= "192.168.0.194"} 	else {conf.host 	= os.Getenv("host")}
 	if os.Getenv("port") 		== "" {conf.port 		= "3306"} 			else {conf.port 	= os.Getenv("port")}
 	if os.Getenv("database") 	== "" {conf.database 	= "consignments"} 	else {conf.database = os.Getenv("database")}
-	if os.Getenv("charset")	== "" {conf.charset 	= "utf8"} 			else {conf.charset 	= os.Getenv("charset")}
+	if os.Getenv("charset")	== "" {conf.charset 	= "utf8mb4"} 		else {conf.charset 	= os.Getenv("charset")}
 	if os.Getenv("username") 	== "" {conf.username 	= "linac"} 			else {conf.username = os.Getenv("username")}
 	if os.Getenv("password") 	== "" {conf.password 	= "whut123"} 		else {conf.password = os.Getenv("password")}
 

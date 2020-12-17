@@ -43,6 +43,7 @@ func NewVesselServiceEndpoints() []*api.Endpoint {
 
 type VesselService interface {
 	FindAvailableAndReserve(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error)
+	Create(ctx context.Context, in *Vessel, opts ...client.CallOption) (*Response, error)
 }
 
 type vesselService struct {
@@ -67,15 +68,27 @@ func (c *vesselService) FindAvailableAndReserve(ctx context.Context, in *Specifi
 	return out, nil
 }
 
+func (c *vesselService) Create(ctx context.Context, in *Vessel, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "VesselService.Create", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for VesselService service
 
 type VesselServiceHandler interface {
 	FindAvailableAndReserve(context.Context, *Specification, *Response) error
+	Create(context.Context, *Vessel, *Response) error
 }
 
 func RegisterVesselServiceHandler(s server.Server, hdlr VesselServiceHandler, opts ...server.HandlerOption) error {
 	type vesselService interface {
 		FindAvailableAndReserve(ctx context.Context, in *Specification, out *Response) error
+		Create(ctx context.Context, in *Vessel, out *Response) error
 	}
 	type VesselService struct {
 		vesselService
@@ -90,4 +103,8 @@ type vesselServiceHandler struct {
 
 func (h *vesselServiceHandler) FindAvailableAndReserve(ctx context.Context, in *Specification, out *Response) error {
 	return h.VesselServiceHandler.FindAvailableAndReserve(ctx, in, out)
+}
+
+func (h *vesselServiceHandler) Create(ctx context.Context, in *Vessel, out *Response) error {
+	return h.VesselServiceHandler.Create(ctx, in, out)
 }
