@@ -4,6 +4,6 @@ RUN mkdir -p /app
 WORKDIR /app
 
 ADD consignment.json /app/consignment.json
-ADD cli /app/cli.run
+ADD cli.run /app/cli.run
 
 CMD ["./cli.run"]

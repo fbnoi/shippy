@@ -4,60 +4,32 @@ import (
 	"context"
 	vesselProto "github.com/fbnoi/shippy/vessel-service/proto/vessel"
 	"log"
-	"strconv"
-	"sync"
+	"os"
 
 	pb "github.com/fbnoi/shippy/consignment-service/proto/consignment"
 	micro "github.com/micro/go-micro/v2"
 )
 
-const (
-	port = ":8089"
-)
-
-// 仓库接口
-type iRepository interface {
-	Create(*pb.Consignment) (*pb.Consignment, error)
+type config struct {
+	host 		string
+	port 		string
+	database 	string
+	charset 	string
+	username 	string
+	password 	string
 }
 
-//
-// 存放货物的仓库， 实现了 iRepository 接口
-//
-type repository struct {
-	iRepository
-	consignments []*pb.Consignment
-	lastID       int
-	mux          sync.Mutex
-}
-
-// 将托运的货物放入仓库
-func (r *repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
-	r.mux.Lock()
-	id := strconv.Itoa(r.lastID)
-	r.lastID++
-	consignment.Id = id
-	r.consignments = append(r.consignments, consignment)
-	r.mux.Unlock()
-	return consignment, nil
-}
-
-// 获取仓库内所有的货物
-func (r *repository) GetAll() []*pb.Consignment {
-	return r.consignments
-}
-
-// ********************************
-// 托运服务 实现了 consignmentService 接口
-//
-// ********************************
 type consignmentService struct {
-	repo *repository
+	repo *ConsignmentRepository
 	vesselClient vesselProto.VesselService
 }
 
-func (s *consignmentService) Init() {
-	s.repo = &repository{}
-	s.repo.lastID = 1
+func (s *consignmentService) Init(conf config) {
+	session, err := CreateSession(conf.host, conf.port, conf.database, conf.charset, conf.username, conf.password)
+	if err != nil {
+		panic(err)
+	}
+	s.repo = &ConsignmentRepository{session}
 	service := micro.NewService(micro.Name("shippy.cli.consignment"))
 	s.vesselClient = vesselProto.NewVesselService("shippy.service.vessel", service.Client())
 }
@@ -85,15 +57,27 @@ func (s *consignmentService) CreateConsignment(ctx context.Context, req *pb.Cons
 }
 
 func (s *consignmentService) GetConsignments(ctx context.Context, req *pb.GetRequest, res *pb.Response) error {
-	consignments := s.repo.GetAll()
-	res.Consignments = consignments
-	return nil
+	if consignments, err := s.repo.GetAll(); err != nil {
+		return err
+	} else {
+		res.Consignments = consignments
+		return nil
+	}
 }
 
 // 服务入口
 func main() {
+	conf := config{}
+
+	if os.Getenv("host") 		== "" {conf.host 		= "192.168.10.194"} else {conf.host 	= os.Getenv("host")}
+	if os.Getenv("port") 		== "" {conf.port 		= "3306"} 			else {conf.port 	= os.Getenv("port")}
+	if os.Getenv("database") 	== "" {conf.database 	= "consignments"} 	else {conf.database = os.Getenv("database")}
+	if os.Getenv("charset")	== "" {conf.charset 	= "utf8"} 			else {conf.charset 	= os.Getenv("charset")}
+	if os.Getenv("username") 	== "" {conf.username 	= "linac"} 			else {conf.username = os.Getenv("username")}
+	if os.Getenv("password") 	== "" {conf.password 	= "whut123"} 		else {conf.password = os.Getenv("password")}
+
 	servConsignment := consignmentService{}
-	servConsignment.Init()
+	servConsignment.Init(conf)
 
 	service := micro.NewService(micro.Name("shippy.service.consignment"))
 
@@ -103,7 +87,6 @@ func main() {
 	if err := pb.RegisterConsignmentServiceHandler(service.Server(), &servConsignment); err != nil {
 		log.Panic(err)
 	}
-
 	// Run the server
 	if err := service.Run(); err != nil {
 		log.Panic(err)
